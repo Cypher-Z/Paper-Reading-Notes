@@ -6,7 +6,7 @@
 
 #### Dataset and Methodology
 
-![image-20191215213924697](/Users/zhangym/Desktop/Github/Paper-reading-notes-security/IMC/image/image-20191215213924697.png)
+![image-20191215213924697](image/image-20191215213924697.png)
 
 #### 实验结果
 
