@@ -34,16 +34,16 @@ Creepware，基于人际关系的诈骗软件，是本文研究的对象。作�
 
 1. **选择种子集合**。选用Chatterjee的18个 overt surveillance apps。
 2. **初级算法**。先利用seedset，标记infected devices集合。随后根据app安装在infected device上的概率推断其是否属于malicious app.devices看做结点，app也看做结点。某个app被安在k个infected devices上概率P(k,n)的计算方式是，首先根据先验知识，即该app被安装了多少次，其关联的主机有多少是infected，计算出其一次安装命中infected device的概率，再根据二项分布计算P(k,n)。
-3. **加入误报抑制**。如果简单采取初级算法，可能会有误报现象，即某app只被安装了一次，且安在infected device上，此时其概率P为1，但事实可能是非常不准确的。本文用到**<u>Maximum A Posteriori（MAP）</u>**的方法对该步骤进行了修正。简单来说，MAP是在可已知参数的先验分布时，参考先验分布给出后验概率计算（而不是简单的MLE）。（具体可参见知乎解释：如何通俗理解 beta 分布？ - 小杰的回答 - 知乎
-   https://www.zhihu.com/question/30269898/answer/123261564，讲解地非常清楚）。本文中参数的先验概率采取了至少安装在100个devices上的app进行计算，得到了beta分布中的参数，并以此计算出了app的MAP分数。
-4. **关联关系挖掘的具体步骤**。进行了10轮迭代，获取stable的初始分数，然后实行MAP算法。![image-20200420144901842](/Users/zhangym/Desktop/Github/Paper-reading-notes-security/S&P/image/image-20200420144901842.png)
+3. **加入误报抑制**。如果简单采取初级算法，可能会有误报现象，即某app只被安装了一次，且安在infected device上，此时其概率P为1，但事实可能是非常不准确的。本文用到**<u>Maximum A Posteriori（MAP）</u>**的方法对该步骤进行了修正。简单来说，MAP是在可已知参数的先验分布时，参考先验分布给出后验概率计算（而不是简单的MLE）。具体可参见知乎解释：如何通俗理解 beta 分布？ - 小杰的回答 - 知乎
+   https://www.zhihu.com/question/30269898/answer/123261564讲解地非常清楚）。本文中参数的先验概率采取了至少安装在100个devices上的app进行计算，得到了beta分布中的参数，并以此计算出了app的MAP分数。
+4. **关联关系挖掘的具体步骤**。进行了10轮迭代，获取stable的初始分数，然后实行MAP算法。![image-20200420144901842](image/image-20200420144901842.png)
 5. **实际部署**。部署在AWS Spark进行分布式计算。
 
 #### Categorizing CreepWare
 
 这里重点说一下本文手工打标签的过程。手工验证了排名前1k的app，找了四个coder进行人工讨论分类，通过分别标记25，25，25，25，35个apps并每次都讨论修正一次分类标签的方式进行。两轮讨论后定下的category标签，在后续60个标记中得到了0.77的**==Fleiss’ kappa 统计系数==**（该参数可以用来评估对于这种人工投票判断属性的系统是否substantial）。随后就决定用此时商定的标签，对余下的890个也做了分类标注，展示如下：
 
-![image-20200420151320845](/Users/zhangym/Desktop/Github/Paper-reading-notes-security/S&P/image/image-20200420151320845.png)
+![image-20200420151320845](image/image-20200420151320845.png)
 
 #### Evaluation
 
