@@ -20,7 +20,7 @@
 
 1. 选择APP。Most popular，exclude financial apps，require apps have multiple versions。
 2. 收集各种版本的APK。参考了前人的工作结果。对于每个app最多保留30个version。通过检查APK中某些文件的修改时间，以及借助一些第三方服务平台，推测该version的update日期。
-3. 与APK交互，生成、收集网络流量。为避免app在虚拟环境中的行为与实际环境不同，使用5个真实的安卓手机设备进行试验。使用了可以自动生成随机UI交互时间的安卓工具，**Monkey** https://developer.android.com/studio/test/monkey。收集流量的方法，是搭建了一台服务器作为 Proxy，中间劫持设备的流量，其中TLS劫持利用**MITMProxy** https://mitmproxy.org 完成，而若app不支持这种劫持，使用**JustTrustMe** https://github.com/Fuzion24/JustTrustMe 修改安卓系统配置。
+3. 与APK交互，生成、收集网络流量。为避免app在虚拟环境中的行为与实际环境不同，使用5个真实的安卓手机设备进行试验。使用了可以自动生成随机UI交互时间的安卓工具，**Monkey** https://developer.android.com/studio/test/monkey。 收集流量的方法是搭建了一台服务器作为Proxy，中间劫持设备的流量，其中TLS劫持利用**MITMProxy** https://mitmproxy.org 完成，而若app不支持这种劫持，使用**JustTrustMe** https://github.com/Fuzion24/JustTrustMe 修改安卓系统配置。
 4. 隐私信息检查。正则匹配+ReCon（前人工作，Mobisys16）机器学习检查PII泄露。使用WHOIS、Google Play等辅助数据判断PII被传输到什么组织。
 
 **Limitation**：有些被obfuscated的PII泄露是检测不到的。整体是一个underestimated实验。
