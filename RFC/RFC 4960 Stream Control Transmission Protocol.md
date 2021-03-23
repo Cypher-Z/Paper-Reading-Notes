@@ -281,9 +281,47 @@ Cookie字段放的是INIT ACK消息中的State Cookie 字段。（此时cookie�
 
 ### Termination of Association
 
+SCTP的关闭分为两种模式：graceful close - **SHUTDOWN** 和 close-**ABORT**。值得注意的是，SCTP不支持半双工的shutdown（like TCP），一旦有一方shutdown，则双方都停止接收新的data chunk。
+
+**Abort of an association**
+
+abort的receiver在接收到abort之后会做verification，注意，收到任何含有abort chunk的包之后都不需要再做任何回复。
+
+**Shutdown of an association**
+
+当接收到up layer的shutdown指令之后，SCTP不会再接收上层的新的data chunk传输，但已有的outstanding data chunks会保证传输完毕，之后，再完成整个termination流程。
+
 ### Interface with Upper Layer
 
+【先跳过】
+
 ### Security Considerations
+
+SCTP需要拥有以下能力：
+
+* 可靠的实时数据传输（信令消息对时间非常敏感）
+* 保证数据传输的完整性
+
+安全风险包括：
+
+* **Data corruption（数据污染）**。即使application layer的数据做了完整性保护，SCTP层的header仍然有可能被污染（SCTP-AUTH 机制 RFC4895）可能帮助解决该问题。
+* **Confidentiality.** 对上层的数据有机密性要求的话，IPsec可能是最好的解决办法。
+* **Blind DoS attacks**. 如果攻击者可以劫持或者看到SCTP节点的数据流，可能通过洪泛、伪装、或者独占资源的方式进行拒绝服务攻击。
+  * **洪泛攻击**。通常来说，网络服务可以通过一些手段防止dos攻击，例如在确认服务合法之前不要承诺提供某些资源、有限完成现有的工作而不是新来的工作、将过期的或者重复的请求丢掉、不要回应发往非单播地址的包等等。SCTP的设计（四次握手、Cookie、Verification flag验证等）已经从各种层面上缓解了起被dos的可能，但也还是有可能的（比如**在INIT chunk里面利用域名做dns flooding**）
+  * **伪装攻击**。包括通过伪装导致资源耗尽、伪装成peer node制造错误让对面放弃链接、或者插入消息如shutdown等。
+  * **不合理的服务资源占用**。例如和某个node开启大量的association导致其它node链接不过去。应用需要通过制定一些policy（例如设置单个node最大链接数）来预防此类攻击。
+
+
+
+**关于Firewall**：firewall能够对哪怕只是fragmented的SCTP包的第一个fragment的头部做简单的检查，例如是否为INIT chunk、以及该chunk是否符合某些MUST的规定（然后考虑扔掉不合规的包）即可。
+
+SCTP应该努力使得INIT ACK包足够小（包里可能需要带较多的error parameter），以防止放大攻击。
+
+
+
+
+
+
 
 
 
