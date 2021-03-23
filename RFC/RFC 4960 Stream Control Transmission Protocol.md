@@ -220,7 +220,7 @@ Cookie字段放的是INIT ACK消息中的State Cookie 字段。（此时cookie�
 
 一旦链接建立后，将开启双向的流传输机制。
 
-**通常的链接建立流程**
+#### 正常的链接建立流程
 
 1. 一方（A）发送INIT，在其中设置自己的Verification flag（某个随机数），发给对方（Z），自己进入Cookie-wait；
 2. Z收到后回复INIT ACK，将A的Verification flag回复，并选择自己的verification flag，同时回复一个state cookie；
@@ -257,7 +257,11 @@ Cookie字段放的是INIT ACK消息中的State Cookie 字段。（此时cookie�
 
 3）cookie已经超过了其life-span，需要返回给对方一个cookie 超时错误信息；
 
+#### 如何处理链接建立过程中的异常消息
 
+在一些情况下会出现用来建立链接的chunks重复/或者并不在通常建立链接的state收到该chunk的情况（如，双方同时请求建立链接、一方restart重建链接、存在attacker等）。RFC规定了处理这种异常initiation chunks的机制。有些会被直接discard，有些是需要回复的，具体case见RFC原文。
+
+除了重复chunk、异常chunk之外的其它错误还包括：Tag Value选择（范围、随机性）、Path Verification（claim的地址为其真实持有且可达，有heatbeat验证机制）
 
 ### User Data Transfer
 
@@ -268,6 +272,12 @@ Cookie字段放的是INIT ACK消息中的State Cookie 字段。（此时cookie�
 【先跳过】
 
 ### Fault Management
+
+1. **Endpoint failure detection.** 通信的双方都会维护一个retransmission相关的信息记录，当重传超过阈值次数或者heatbeat消息指示该节点不可达时，则自动关闭association。
+2. **Path failure detection.** 同时，由于SCTP可能是multi-homed，每条路径（address）也会被维护一个是否可达的信息，当重传到达一定次数则标记为不可达；该状态是动态调整的，即，如果收到新的TSN或者heatbeat ack，则将该address 的error count清零。
+3. **Path heatbeat**. 一旦进入established state，heatbeat就可以开始了，直到shutdown结束。
+4. **"Out of the blue”packets.** OOTB packet，意思是，该packet的格式是正确的，但是终端无法判断其属于哪个association。几种情况下都是直接忽略该消息，值得注意的是，<u>*如果收到的OOTB packet是shutdown ack，那么receiver是需要回复一个shutdown complete的*</u>（可以用来扫描）；又或者，在排除了x种情况之后，<u>*receiver需要回复abort*</u>（再仔细看看，也可以用来扫描）。
+5.  **Verification tag**. 除了收到initiation chunks之外，其它的sctp packet在收到之后首先就需要验证verification tag，如果不match则直接静默丢弃该包。
 
 ### Termination of Association
 
