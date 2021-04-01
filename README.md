@@ -1,1 +1,8 @@
-网络安全和移动网络相关论文阅读笔记
+阅读笔记备忘，包括：
+
+* 网络安全论文，S&P、USENIX、CCS、NDSS
+* 网络测量、通信论文：IMC、Sigcomm
+* 移动通信网络安全论文：WISEC、Mobicom、Infocom
+* 技术资料、书籍阅读笔记：RFC、Books
+
+持续更新！
